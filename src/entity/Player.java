@@ -17,7 +17,7 @@ gamePanel gp;
 keyHandler keyH;
 public final int screenX;
 public final int screenY;
-
+int hasKey =0;
 
 public Player(gamePanel gp,keyHandler keyH) {
 	this.gp =gp;
@@ -82,6 +82,7 @@ public void update() {
 		gp.cChecker.chekTile(this);
 		// CHECK OBJECT COLLISION
 		int objectIndex = gp.cChecker.checkObject(this, true);
+		pickUpObject(objectIndex);
 		//IF COLLISION IS FALSE ? PLAYER CAN MOVE 
 		if(collisionOn ==false) {
 			switch(direction) {
@@ -159,5 +160,26 @@ public void draw(Graphics2D  g2) {
 
 	//g2.drawRect(drawX, drawY, solidArea.width, solidArea.height);
 	
+}
+public void pickUpObject(int index) {
+	// IF I = 999 IT MEANS WE DIDN4T TOUCH ANY OBJECT
+	if(index!=999) {
+String objectName = gp.obj[index].name;
+switch(objectName) {
+case "Key":
+	hasKey++;
+	gp.obj[index]=null;
+	System.out.println("Key:"+hasKey);
+	break;
+case "Door":
+	if(hasKey>0) {
+		gp.obj[index]=null;
+		hasKey--;
+		System.out.println("Key:"+hasKey);
+
+	}
+	break;
+}
+}
 }
 }
