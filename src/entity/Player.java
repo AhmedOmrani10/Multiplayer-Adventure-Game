@@ -179,6 +179,10 @@ case "Door":
 
 	}
 	break;
+case "Boots" :
+	speed+=1;
+	gp.obj[index]=null;
+	break;
 }
 }
 }

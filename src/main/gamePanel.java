@@ -12,6 +12,10 @@ import tile.tileManager;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 public class gamePanel extends JPanel implements Runnable {
+	
+	
+	Sound sound =  new Sound();
+	
 	final int fps =60;
 	
 	tileManager tileM= new tileManager(this);
@@ -29,14 +33,14 @@ final public int screenHeight = tileSize* maxScreenRow;
 // WORLD SETTINGS
 public final int maxWorldCol =50;
 public final int maxWorldRow =50;
-public final int worldWidth = tileSize * maxWorldCol;
-public final int worldHeight = tileSize * maxWorldRow;
+//public final int worldWidth = tileSize * maxWorldCol;
+//public final int worldHeight = tileSize * maxWorldRow;
 
 
 keyHandler keyH =  new keyHandler();
 Thread gameThread;
 public CollisionChecker  cChecker = new CollisionChecker(this);
-
+// ENTITY  AND OBJECT 
 public Player player = new Player(this, keyH);
 public SuperObject obj[] = new SuperObject[10];
 public AssetSetter  aSetter  = new AssetSetter(this);
@@ -102,5 +106,17 @@ public void paintComponent(Graphics g ) {
 	
 	
 	g2.dispose();//save memroy
+}
+public void playMusic(int i) {
+	sound.setFile(i);
+	sound.play();
+	sound.loop();
+}
+public void stopMusic() {
+	sound.stop();
+}
+public void playSE(int i) {
+	sound.setFile(i);
+	sound.play();
 }
 }
