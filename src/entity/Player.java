@@ -167,11 +167,13 @@ public void pickUpObject(int index) {
 String objectName = gp.obj[index].name;
 switch(objectName) {
 case "Key":
+	gp.playSE(1);
 	hasKey++;
 	gp.obj[index]=null;
 	System.out.println("Key:"+hasKey);
 	break;
 case "Door":
+	gp.playSE(3);
 	if(hasKey>0) {
 		gp.obj[index]=null;
 		hasKey--;
@@ -180,6 +182,7 @@ case "Door":
 	}
 	break;
 case "Boots" :
+	gp.playSE(2);
 	speed+=1;
 	gp.obj[index]=null;
 	break;

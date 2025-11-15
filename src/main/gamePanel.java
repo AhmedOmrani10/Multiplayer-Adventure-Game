@@ -54,6 +54,7 @@ this.setFocusable(true);
 
 public void setUpGame() {
 	aSetter.setObject();
+	playMusic(0);
 }
 public void startGameThread() {
 	gameThread = new Thread(this);
