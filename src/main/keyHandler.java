@@ -6,6 +6,9 @@ import javax.swing.event.MenuKeyEvent;
 import java.awt.event.KeyEvent;
 public class keyHandler implements KeyListener{
 public boolean upPressed,downPressed,leftPressed,rightPressed;
+
+//DEBUG
+ boolean checkDrawTime = false;
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
@@ -27,6 +30,17 @@ if(code==MenuKeyEvent.VK_Q) {
 }
 if(code==MenuKeyEvent.VK_D) {
 	rightPressed=true;
+}
+
+//DEBUG 
+if(code==MenuKeyEvent.VK_T) {
+	if(checkDrawTime ==false) {
+		checkDrawTime =true;
+		
+	}
+	else if (checkDrawTime == true) {
+		checkDrawTime =false;
+	}
 }
 	}
 

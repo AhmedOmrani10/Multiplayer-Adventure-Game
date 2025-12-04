@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.awt.image.BufferedImage;
 import java.awt.Rectangle;
 import javax.imageio.ImageIO;
+import javax.swing.text.Utilities;
+
+import main.UtiltiyTool;
 import main.gamePanel;
 import main.keyHandler;
 
@@ -35,20 +38,28 @@ public class Player extends entity {
     }
     
     public void getPlayerImage() {
-        try {
-            up1 = ImageIO.read(getClass().getResourceAsStream("/player/walkUp1-02.png"));
-            up2 = ImageIO.read(getClass().getResourceAsStream("/player/walkUp2-02.png"));
-            right1 = ImageIO.read(getClass().getResourceAsStream("/player/idleRight-02.png"));
-            right2 = ImageIO.read(getClass().getResourceAsStream("/player/walkRight-02.png"));
-            left1 = ImageIO.read(getClass().getResourceAsStream("/player/idleLeft.png"));
-            left2 = ImageIO.read(getClass().getResourceAsStream("/player/walkLeft-02.png"));
-            down1 = ImageIO.read(getClass().getResourceAsStream("/player/walk_without_wepons_down_1-02.png"));
-            down2 = ImageIO.read(getClass().getResourceAsStream("/player/walk_without_wepons_down_2-02.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+       
+            up1 = setup("walkUp1-02");
+            up2 = setup("walkUp2-02");
+            right1 = setup("idleRight-02");
+            right2 = setup("walkRight-02");
+            left1 = setup("idleLeft");
+            left2 = setup("walkLeft-02");
+            down1 = setup("walk_without_wepons_down_1-02");
+            down2 = setup("walk_without_wepons_down_2-02");
+      
     }
-
+public BufferedImage setup(String imageName) {
+UtiltiyTool uTool =  new UtiltiyTool();
+BufferedImage  image = null;
+try {
+	image = ImageIO.read(getClass().getResourceAsStream("/player/"+imageName+".png"));
+	image = uTool.scaleImage(image, 33, 43);
+}catch(IOException e) {
+	e.printStackTrace();
+}
+return image;
+}
     public void setDefaultValues() {
         worldX = gp.tileSize * 23;
         worldY = gp.tileSize * 21;
@@ -150,7 +161,7 @@ public class Player extends entity {
                 }
                 break;
         }
-        g2.drawImage(image, screenX, screenY, 33, 43, null);
+        g2.drawImage(image, screenX, screenY, null);
     }
     
     public void pickUpObject(int index) {

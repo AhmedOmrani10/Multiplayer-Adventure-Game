@@ -2,6 +2,8 @@ package object;
 
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
+
+import main.UtiltiyTool;
 import main.gamePanel;
 import java.awt.Rectangle;
 public class SuperObject {
@@ -12,6 +14,7 @@ public class SuperObject {
 	public Rectangle solidArea = new Rectangle(0,0,48,48);
 	public int solidAreaDefaultX =0;
 	public int solidAreaDefaultY =0;
+	UtiltiyTool uTool =  new UtiltiyTool();
 	public void draw(Graphics g2,gamePanel gp) {
 		int screenX = worldX -gp.player.worldX +gp.player.screenX;
 		int screenY = worldY -gp.player.worldY +gp.player.screenY;
