@@ -14,7 +14,7 @@ public class Player extends entity {
     keyHandler keyH;
     public final int screenX;
     public final int screenY;
-    int hasKey = 0;
+    public int hasKey = 0;
 
     public Player(gamePanel gp, keyHandler keyH) {
         this.gp = gp;
@@ -109,6 +109,9 @@ public class Player extends entity {
                 spriteCounter = 0;
             }
         }
+        else {
+        	
+        }
     }
 
     public void draw(Graphics2D g2) {
@@ -159,21 +162,32 @@ public class Player extends entity {
                     gp.playSE(1);
                     hasKey++;
                     gp.obj[index] = null;
-                    System.out.println("Key: " + hasKey);
+                    gp.ui.showMessage("You got a key!");
                     break;
                 case "Door":
                     if (hasKey > 0) {
                         gp.playSE(3);
                         gp.obj[index] = null;
                         hasKey--;
-                        System.out.println("Key: " + hasKey);
+                        gp.ui.showMessage("You opened the door!");
+
+                    }
+                    else {
+                    	gp.ui.showMessage("You need a key!");
                     }
                     break;
                 case "Boots":
                     gp.playSE(2);
                     speed += 1;
                     gp.obj[index] = null;
+                	gp.ui.showMessage("Speed up!");
+
                     break;
+                case "Chest":
+                	gp.ui.gameFinished =true;
+                	gp.stopMusic();
+                	gp.playSE(4);
+                	break;
             }
         }
     }

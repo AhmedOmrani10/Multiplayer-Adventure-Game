@@ -27,7 +27,7 @@ public class gamePanel extends JPanel implements Runnable {
     final public int maxScreenRow = 12;
     final public int screenWidth = tileSize * maxScreenCol;
     final public int screenHeight = tileSize * maxScreenRow;
-    
+    public UI ui =  new UI(this);
     // WORLD SETTINGS
     public final int maxWorldCol = 50;
     public final int maxWorldRow = 50;
@@ -133,6 +133,9 @@ public class gamePanel extends JPanel implements Runnable {
         
         // Draw local player
         player.draw(g2);
+        
+        //UI
+        ui.draw(g2);
         
         // Draw player count
         g2.setColor(Color.WHITE);
