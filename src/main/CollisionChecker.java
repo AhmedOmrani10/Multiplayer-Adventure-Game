@@ -74,7 +74,7 @@ public int checkObject(entity entity,boolean player) {
 			// Get entity's solid area position
 			entity.solidArea.x = entity.worldX+entity.solidArea.x;
 			entity.solidArea.y = entity.worldY +entity.solidArea.y;
-		// Get the object's solid area position 
+		// Get the object's solid area position  
 		gp.obj[i].solidArea.x = gp.obj[i].worldX +gp.obj[i].solidArea.x;
 		gp.obj[i].solidArea.y = gp.obj[i].worldY +gp.obj[i].solidArea.y;
 switch(entity.direction) {
