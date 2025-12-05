@@ -6,7 +6,10 @@ import javax.swing.event.MenuKeyEvent;
 import java.awt.event.KeyEvent;
 public class keyHandler implements KeyListener{
 public boolean upPressed,downPressed,leftPressed,rightPressed;
-
+gamePanel gp;
+public keyHandler(gamePanel gp) {
+	this.gp = gp;
+}
 //DEBUG
  boolean checkDrawTime = false;
 	@Override
@@ -30,6 +33,13 @@ if(code==MenuKeyEvent.VK_Q) {
 }
 if(code==MenuKeyEvent.VK_D) {
 	rightPressed=true;
+}
+if(code==MenuKeyEvent.VK_P) {
+	if(gp.gameState == gp.playState) {
+		gp.gameState = gp.pauseState;
+	}else if(gp.gameState == gp.pauseState) {
+		gp.gameState = gp.playState;
+	}
 }
 
 //DEBUG 

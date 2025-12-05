@@ -32,7 +32,7 @@ public class gamePanel extends JPanel implements Runnable {
     public final int maxWorldCol = 50;
     public final int maxWorldRow = 50;
     
-    keyHandler keyH = new keyHandler();
+    keyHandler keyH = new keyHandler(this);
     Thread gameThread;
     public CollisionChecker cChecker = new CollisionChecker(this);
     
@@ -48,6 +48,11 @@ public class gamePanel extends JPanel implements Runnable {
     
     // REMOTE PLAYERS
     private Map<Integer, RemotePlayer> remotePlayers = new ConcurrentHashMap<>();
+    // GAME  STATE
+    
+    public int gameState;
+    public final int playState = 1;
+    public final int pauseState = 2;
     
     public gamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -64,6 +69,7 @@ public class gamePanel extends JPanel implements Runnable {
     public void setUpGame() {
         aSetter.setObject();
         playMusic(0);
+        gameState = playState;
     }
     
     public void startGameThread() {
@@ -106,7 +112,13 @@ public class gamePanel extends JPanel implements Runnable {
     }
     
     public void update() {
-        player.update();
+    	if(gameState == playState) {
+    		player.update();
+    	}
+    	if(gameState == pauseState) {
+    		
+    	}
+        
         
         // Remove inactive remote players
         remotePlayers.entrySet().removeIf(entry -> !entry.getValue().isActive());
