@@ -2,15 +2,19 @@ package main;
 import java.awt.Graphics2D;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.awt.BasicStroke;
 import object.OBJ_Key;
+import java.awt.RenderingHints;
 
 import java.awt.Font;
+import java.awt.FontFormatException;
 public class UI {
 gamePanel gp;
 Graphics2D g2;
-Font arial_40,arial_80;
+Font maruMonica,pursiaBold;
 BufferedImage keyImage;
 public boolean messageOn = false;
 public String message ="";
@@ -21,9 +25,16 @@ DecimalFormat dFormat = new DecimalFormat("#0.00");
 public String currentDialogue ="";
 public UI(gamePanel gp) {
 	this.gp = gp;
-	arial_40 = new Font("Arial", Font.PLAIN, 40);
-	arial_80 = new Font("Arial", Font.BOLD, 80);
-
+	
+try {
+	InputStream is = getClass().getResourceAsStream("/font/x12y16pxMaruMonica.ttf");
+	maruMonica = Font.createFont(Font.TRUETYPE_FONT,is);
+	is = getClass().getResourceAsStream("/font/Purisa Bold.ttf");
+	pursiaBold = Font.createFont(Font.TRUETYPE_FONT,is);
+} catch (FontFormatException | IOException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+}
 	OBJ_Key key = new OBJ_Key(gp);
 	keyImage = key.image;
 }
@@ -33,7 +44,8 @@ public void showMessage(String text) {
 }
 public void draw(Graphics2D g2) {
 	this.g2 =g2;
-	g2.setFont(arial_40);
+	g2.setFont(maruMonica);
+	g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 	g2.setColor(Color.white);
 	//PLAY STATE
 	if(gp.gameState == gp.playState) {
@@ -48,7 +60,7 @@ public void draw(Graphics2D g2) {
 		drawDialogueScreen();
 	}
 	if(gameFinished ==true) {
-		g2.setFont(arial_40);
+		g2.setFont(maruMonica);
 	    g2.setColor(Color.white);
 		String text;
 		int textLength;
@@ -69,7 +81,7 @@ public void draw(Graphics2D g2) {
 			 g2.drawString(text,x,y);
 		 
 		 
-		 g2.setFont(arial_80);
+		 g2.setFont(maruMonica);
 		 g2.setColor(Color.yellow);
 		 text = "Congratulations!";
 		 textLength = (int) g2.getFontMetrics().getStringBounds(text,g2).getWidth();
@@ -81,7 +93,7 @@ public void draw(Graphics2D g2) {
 		 
 		 
 	}else {
-		g2.setFont(arial_40);
+		g2.setFont(maruMonica);
 	    g2.setColor(Color.white);
 	    g2.drawImage(keyImage,gp.tileSize/2,gp.tileSize/2,gp.tileSize,gp.tileSize,null);
 	    g2.drawString("x"+gp.player.hasKey,74,65);
