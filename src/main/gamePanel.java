@@ -28,7 +28,8 @@ public class gamePanel extends JPanel implements Runnable {
     final public int maxScreenRow = 12;
     final public int screenWidth = tileSize * maxScreenCol;
     final public int screenHeight = tileSize * maxScreenRow;
-    public UI ui =  new UI(this);
+    public UI ui = new UI(this);
+    
     // WORLD SETTINGS
     public final int maxWorldCol = 50;
     public final int maxWorldRow = 50;
@@ -50,13 +51,12 @@ public class gamePanel extends JPanel implements Runnable {
     
     // REMOTE PLAYERS
     private Map<Integer, RemotePlayer> remotePlayers = new ConcurrentHashMap<>();
-    // GAME  STATE
     
+    // GAME STATE
     public int gameState;
     public final int playState = 1;
     public final int pauseState = 2;
-    public final int dialogueState =3;
-    
+    public final int dialogueState = 3;
     
     public gamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -80,6 +80,19 @@ public class gamePanel extends JPanel implements Runnable {
     public void startGameThread() {
         gameThread = new Thread(this);
         gameThread.start();
+    }
+    
+    // Check if this player is the NPC master (player with lowest ID)
+    public boolean isNPCMaster() {
+        if (networkManager == null) return true; // Single player mode
+        
+        int myId = networkManager.getPlayerId();
+        for (Integer remoteId : remotePlayers.keySet()) {
+            if (remoteId < myId) {
+                return false; // Another player has lower ID
+            }
+        }
+        return true; // This player has the lowest ID
     }
     
     @Override
@@ -117,20 +130,20 @@ public class gamePanel extends JPanel implements Runnable {
     }
     
     public void update() {
-    	if(gameState == playState) {
-    		//player
-    		player.update();
-    		//npc
-    		for(int i = 0 ;i<npc.length;i++) {
-    			if(npc[i]!=null) {
-    				npc[i].update();
-    			}
-    		}
-    	}
-    	if(gameState == pauseState) {
-    		
-    	}
-        
+        if (gameState == playState) {
+            // Player
+            player.update();
+            
+            // NPC - all players update, but only master decides movement
+            for (int i = 0; i < npc.length; i++) {
+                if (npc[i] != null) {
+                    npc[i].update();
+                }
+            }
+        }
+        if (gameState == pauseState) {
+            // Paused
+        }
         
         // Remove inactive remote players
         remotePlayers.entrySet().removeIf(entry -> !entry.getValue().isActive());
@@ -139,13 +152,14 @@ public class gamePanel extends JPanel implements Runnable {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
+        
         // DEBUG
-        long drawStart =0;
-        if(keyH.checkDrawTime ==true) {
-        	drawStart  = System.nanoTime();
+        long drawStart = 0;
+        if (keyH.checkDrawTime == true) {
+            drawStart = System.nanoTime();
         }
         
-        // tile
+        // Tile
         tileM.draw(g2);
         
         // OBJECT
@@ -154,12 +168,14 @@ public class gamePanel extends JPanel implements Runnable {
                 obj[i].draw(g2, this);
             }
         }
+        
         // NPC 
-        for(int  i =0 ;i< npc.length;i++) {
-        	if(npc[i] != null) {
-        		npc[i].draw(g2);
-        	}
+        for (int i = 0; i < npc.length; i++) {
+            if (npc[i] != null) {
+                npc[i].draw(g2);
+            }
         }
+        
         // Draw remote players BEFORE local player
         for (RemotePlayer remotePlayer : remotePlayers.values()) {
             remotePlayer.draw(g2, player.screenX, player.screenY);
@@ -168,15 +184,16 @@ public class gamePanel extends JPanel implements Runnable {
         // Draw local player
         player.draw(g2);
         
-        //UI
+        // UI
         ui.draw(g2);
-        //DEBUG
-        if(keyH.checkDrawTime ==true) {
-        long drawEnd  = System.nanoTime();
-        long passed = drawEnd-drawStart;
-        g2.setColor(Color.white);
-        g2.drawString("Draw Time"+ passed ,10, 400);
-        System.out.println("Draw Time:"+passed);
+        
+        // DEBUG
+        if (keyH.checkDrawTime == true) {
+            long drawEnd = System.nanoTime();
+            long passed = drawEnd - drawStart;
+            g2.setColor(Color.white);
+            g2.drawString("Draw Time" + passed, 10, 400);
+            System.out.println("Draw Time:" + passed);
         }
         
         // Draw player count
@@ -192,6 +209,14 @@ public class gamePanel extends JPanel implements Runnable {
         networkManager.broadcastGameState(gameState);
     }
     
+    // Broadcast NPC state changes
+    public void broadcastNPCState(int npcIndex, int worldX, int worldY, String direction, int spriteNum) {
+        if (networkManager != null) {
+            String npcState = "NPC:" + npcIndex + "," + worldX + "," + worldY + "," + direction + "," + spriteNum;
+            networkManager.broadcastGameState(npcState);
+        }
+    }
+    
     // Serialize game state to string
     private String serializeGameState() {
         StringBuilder sb = new StringBuilder();
@@ -201,6 +226,20 @@ public class gamePanel extends JPanel implements Runnable {
         sb.append(player.worldY).append(",");
         sb.append(player.direction).append(",");
         sb.append(player.spriteNum);
+        
+        // Add NPC states (only master broadcasts)
+        if (isNPCMaster()) {
+            sb.append("|NPCS:");
+            for (int i = 0; i < npc.length; i++) {
+                if (npc[i] != null) {
+                    sb.append(i).append(":");
+                    sb.append(npc[i].worldX).append(",");
+                    sb.append(npc[i].worldY).append(",");
+                    sb.append(npc[i].direction).append(",");
+                    sb.append(npc[i].spriteNum).append(";");
+                }
+            }
+        }
         
         // Add object states
         sb.append("|OBJECTS:");
@@ -248,6 +287,51 @@ public class gamePanel extends JPanel implements Runnable {
                     // Update remote player position
                     remotePlayer.updatePosition(worldX, worldY, direction, spriteNum);
                     
+                } else if (part.startsWith("NPCS:")) {
+                    // Handle NPC synchronization
+                    String npcData = part.substring(5);
+                    if (!npcData.isEmpty()) {
+                        String[] npcs = npcData.split(";");
+                        for (String npcInfo : npcs) {
+                            if (!npcInfo.isEmpty()) {
+                                String[] npcParts = npcInfo.split(":");
+                                int index = Integer.parseInt(npcParts[0]);
+                                String[] npcValues = npcParts[1].split(",");
+                                
+                                int worldX = Integer.parseInt(npcValues[0]);
+                                int worldY = Integer.parseInt(npcValues[1]);
+                                String direction = npcValues[2];
+                                int spriteNum = Integer.parseInt(npcValues[3]);
+                                
+                                // Update NPC position
+                                if (npc[index] != null) {
+                                    npc[index].worldX = worldX;
+                                    npc[index].worldY = worldY;
+                                    npc[index].direction = direction;
+                                    npc[index].spriteNum = spriteNum;
+                                }
+                            }
+                        }
+                    }
+                } else if (part.startsWith("NPC:")) {
+                    // Handle single NPC update
+                    String npcData = part.substring(4);
+                    String[] values = npcData.split(",");
+                    
+                    int npcIndex = Integer.parseInt(values[0]);
+                    int worldX = Integer.parseInt(values[1]);
+                    int worldY = Integer.parseInt(values[2]);
+                    String direction = values[3];
+                    int spriteNum = Integer.parseInt(values[4]);
+                    
+                    // Update NPC position
+                    if (npc[npcIndex] != null) {
+                        npc[npcIndex].worldX = worldX;
+                        npc[npcIndex].worldY = worldY;
+                        npc[npcIndex].direction = direction;
+                        npc[npcIndex].spriteNum = spriteNum;
+                    }
+                    
                 } else if (part.startsWith("OBJECTS:")) {
                     // Handle object synchronization
                     String objectData = part.substring(8);
@@ -259,7 +343,7 @@ public class gamePanel extends JPanel implements Runnable {
                                 int index = Integer.parseInt(objParts[0]);
                                 String objName = objParts[1];
                                 
-                                // Sync object state (simple version)
+                                // Sync object state
                                 if (objName.equals("null")) {
                                     obj[index] = null;
                                 }

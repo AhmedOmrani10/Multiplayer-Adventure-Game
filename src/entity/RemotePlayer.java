@@ -8,13 +8,12 @@ import javax.imageio.ImageIO;
 import main.gamePanel;
 
 public class RemotePlayer extends entity {
-    gamePanel gp;
     public int playerId;
     private long lastUpdateTime;
-    private static final long TIMEOUT = 1000; // 5 seconds timeout
+    private static final long TIMEOUT = 5000; // 5 seconds timeout
     
     public RemotePlayer(gamePanel gp, int playerId) {
-        this.gp = gp;
+        super(gp); // Call parent constructor with gamePanel
         this.playerId = playerId;
         this.lastUpdateTime = System.currentTimeMillis();
         
@@ -30,19 +29,15 @@ public class RemotePlayer extends entity {
     }
     
     public void getPlayerImage() {
-        try {
-            // Use same images as local player (or create different colored versions)
-            up1 = ImageIO.read(getClass().getResourceAsStream("/player/walkUp1-02.png"));
-            up2 = ImageIO.read(getClass().getResourceAsStream("/player/walkUp2-02.png"));
-            right1 = ImageIO.read(getClass().getResourceAsStream("/player/idleRight-02.png"));
-            right2 = ImageIO.read(getClass().getResourceAsStream("/player/walkRight-02.png"));
-            left1 = ImageIO.read(getClass().getResourceAsStream("/player/idleLeft.png"));
-            left2 = ImageIO.read(getClass().getResourceAsStream("/player/walkLeft-02.png"));
-            down1 = ImageIO.read(getClass().getResourceAsStream("/player/walk_without_wepons_down_1-02.png"));
-            down2 = ImageIO.read(getClass().getResourceAsStream("/player/walk_without_wepons_down_2-02.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // Use the setup method from parent entity class
+        up1 = setup("/player/walkUp1-02");
+        up2 = setup("/player/walkUp2-02");
+        right1 = setup("/player/idleRight-02");
+        right2 = setup("/player/walkRight-02");
+        left1 = setup("/player/idleLeft");
+        left2 = setup("/player/walkLeft-02");
+        down1 = setup("/player/walk_without_wepons_down_1-02");
+        down2 = setup("/player/walk_without_wepons_down_2-02");
     }
     
     public void updatePosition(int worldX, int worldY, String direction, int spriteNum) {
