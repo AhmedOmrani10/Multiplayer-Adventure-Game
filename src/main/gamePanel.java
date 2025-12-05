@@ -33,7 +33,7 @@ public class gamePanel extends JPanel implements Runnable {
     public final int maxWorldCol = 50;
     public final int maxWorldRow = 50;
     
-    keyHandler keyH = new keyHandler(this);
+    public keyHandler keyH = new keyHandler(this);
     Thread gameThread;
     public CollisionChecker cChecker = new CollisionChecker(this);
     
@@ -55,6 +55,8 @@ public class gamePanel extends JPanel implements Runnable {
     public int gameState;
     public final int playState = 1;
     public final int pauseState = 2;
+    public final int dialogueState =3;
+    
     
     public gamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));

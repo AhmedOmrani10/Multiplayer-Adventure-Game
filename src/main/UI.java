@@ -3,7 +3,7 @@ import java.awt.Graphics2D;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
-
+import java.awt.BasicStroke;
 import object.OBJ_Key;
 
 import java.awt.Font;
@@ -18,7 +18,7 @@ int messageCounter = 0;
 public boolean gameFinished =false;
 double playTime;
 DecimalFormat dFormat = new DecimalFormat("#0.00");
-
+public String currentDialogue ="";
 public UI(gamePanel gp) {
 	this.gp = gp;
 	arial_40 = new Font("Arial", Font.PLAIN, 40);
@@ -35,11 +35,17 @@ public void draw(Graphics2D g2) {
 	this.g2 =g2;
 	g2.setFont(arial_40);
 	g2.setColor(Color.white);
+	//PLAY STATE
 	if(gp.gameState == gp.playState) {
 		
 	}
+	//PAUSE STATE
 	if(gp.gameState == gp.pauseState) {
 		 drawPauseScreen();
+	}
+	//DIALOGUE STATE
+	if(gp.gameState == gp.dialogueState) {
+		drawDialogueScreen();
 	}
 	if(gameFinished ==true) {
 		g2.setFont(arial_40);
@@ -81,7 +87,7 @@ public void draw(Graphics2D g2) {
 	    g2.drawString("x"+gp.player.hasKey,74,65);
        // TIME
 	    playTime +=(double)1/60;
-	    g2.drawString("Time:"+dFormat.format(playTime),gp.tileSize*11,65);
+	    //g2.drawString("Time:"+dFormat.format(playTime),gp.tileSize*11,65);
 	    if(messageOn ==true) {
 	    	g2.setFont(g2.getFont().deriveFont(30F));
 	        g2.drawString(message,gp.tileSize/2,gp.tileSize*5);
@@ -93,6 +99,39 @@ public void draw(Graphics2D g2) {
 	}
 	    }
 	}
+}
+
+public void drawDialogueScreen() {
+	//Window
+	// WINDOW
+    int x = gp.tileSize * 3;
+    int y = gp.tileSize / 2;
+    int width = gp.screenWidth - (gp.tileSize * 6);
+    int height = gp.tileSize * 4;
+
+    drawSubWindow(x,y,width,height);
+
+    g2.setFont(g2.getFont().deriveFont(Font.PLAIN,28F));
+    x += gp.tileSize;
+    y += gp.tileSize;
+    for(String line : currentDialogue.split("\n"))   // splits dialogue until "\n" as a line
+    {
+        g2.drawString(line,x,y);
+        y += 40;
+    }
+    
+}
+public void drawSubWindow(int x, int y, int width, int height)
+{
+    Color c = new Color(0,0,0,210);  // R,G,B, alfa(opacity)
+    g2.setColor(c);
+    g2.fillRoundRect(x,y,width,height,35,35);
+    c = new Color(255,255,255);
+    g2.setColor(c);
+    g2.setStroke(new BasicStroke(5));    // 5 = width of outlines of graphics
+    g2.drawRoundRect(x+5,y+5,width-10,height-10,25,25);
+   
+
 }
 public void drawPauseScreen() {
 	g2.setFont(g2.getFont().deriveFont(Font.PLAIN,80F));

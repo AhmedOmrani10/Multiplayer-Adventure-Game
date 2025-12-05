@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 import java.awt.Rectangle;
 import javax.imageio.ImageIO;
 import javax.swing.text.Utilities;
-
+import main.UI;
 import main.UtiltiyTool;
 import main.gamePanel;
 import main.keyHandler;
@@ -159,9 +159,16 @@ public class Player extends entity {
     }
     public void interactNPC(int index) {
     	if (index != 999) {
-    		System.out.println("you are collided");
+    		if(gp.keyH.enterPressed == true ) {
+    			gp.gameState = gp.dialogueState;
+        		gp.npc[index].speak();
+    		}
+    		
+    			 
+        	 
     		
     	}
+    	gp.keyH.enterPressed = false;
     }
     public void pickUpObject(int index) {
         // IF index = 999 IT MEANS WE DIDN'T TOUCH ANY OBJECT
