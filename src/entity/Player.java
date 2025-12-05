@@ -13,14 +13,15 @@ import main.gamePanel;
 import main.keyHandler;
 
 public class Player extends entity {
-    gamePanel gp;
+   
     keyHandler keyH;
     public final int screenX;
     public final int screenY;
-    //public int hasKey = 0;
+    public int hasKey = 0;
 
     public Player(gamePanel gp, keyHandler keyH) {
-        this.gp = gp;
+    	super(gp);
+      
         this.keyH = keyH;
         screenX = gp.screenWidth / 2 - 16;
         screenY = gp.screenHeight / 2 - 23;
@@ -39,27 +40,17 @@ public class Player extends entity {
     
     public void getPlayerImage() {
        
-            up1 = setup("walkUp1-02");
-            up2 = setup("walkUp2-02");
-            right1 = setup("idleRight-02");
-            right2 = setup("walkRight-02");
-            left1 = setup("idleLeft");
-            left2 = setup("walkLeft-02");
-            down1 = setup("walk_without_wepons_down_1-02");
-            down2 = setup("walk_without_wepons_down_2-02");
+            up1 = setup("/player/walkUp1-02");
+            up2 = setup("/player/walkUp2-02");
+            right1 = setup("/player/idleRight-02");
+            right2 = setup("/player/walkRight-02");
+            left1 = setup("/player/idleLeft");
+            left2 = setup("/player/walkLeft-02");
+            down1 = setup("/player/walk_without_wepons_down_1-02");
+            down2 = setup("/player/walk_without_wepons_down_2-02");
       
     }
-public BufferedImage setup(String imageName) {
-UtiltiyTool uTool =  new UtiltiyTool();
-BufferedImage  image = null;
-try {
-	image = ImageIO.read(getClass().getResourceAsStream("/player/"+imageName+".png"));
-	image = uTool.scaleImage(image, 33, 43);
-}catch(IOException e) {
-	e.printStackTrace();
-}
-return image;
-}
+
     public void setDefaultValues() {
         worldX = gp.tileSize * 23;
         worldY = gp.tileSize * 21;
@@ -92,6 +83,9 @@ return image;
             int objectIndex = gp.cChecker.checkObject(this, true);
             pickUpObject(objectIndex);
             
+            //NPC COLLISION
+            int npcIndex = gp.cChecker.checkEntity(this, gp.npc);   
+            interactNPC(npcIndex);
             // IF COLLISION IS FALSE, PLAYER CAN MOVE 
             if (collisionOn == false) {
                 switch (direction) {
@@ -163,11 +157,48 @@ return image;
         }
         g2.drawImage(image, screenX, screenY, null);
     }
-    
+    public void interactNPC(int index) {
+    	if (index != 999) {
+    		System.out.println("you are collided");
+    		
+    	}
+    }
     public void pickUpObject(int index) {
         // IF index = 999 IT MEANS WE DIDN'T TOUCH ANY OBJECT
         if (index != 999) {
-        
+        	String objectName = gp.obj[index].name;
+            switch (objectName) {
+                case "Key":
+                    gp.playSE(1);
+                    hasKey++;
+                    gp.obj[index] = null;
+                    gp.ui.showMessage("You got a key!");
+                    break;
+                case "Door":
+                    if (hasKey > 0) {
+                        gp.playSE(3);
+                        gp.obj[index] = null;
+                        hasKey--;
+                        gp.ui.showMessage("You opened the door!");
+
+                    }
+                    else {
+                    	gp.ui.showMessage("You need a key!");
+                    }
+                    break;
+                case "Boots":
+                    gp.playSE(2);
+                    speed += 1;
+                    gp.obj[index] = null;
+                	gp.ui.showMessage("Speed up!");
+
+                    break;
+                case "Chest":
+                	gp.ui.gameFinished =true;
+                	gp.stopMusic();
+                	gp.playSE(4);
+                	break;
+            }
         }
     }
 }

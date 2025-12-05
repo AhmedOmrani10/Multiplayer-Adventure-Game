@@ -5,6 +5,7 @@ import java.awt.Color;
 import javax.swing.JPanel;
 import entity.Player;
 import entity.RemotePlayer;
+import entity.entity;
 import object.SuperObject;
 import tile.tileManager;
 import network.NetworkManager;
@@ -39,6 +40,7 @@ public class gamePanel extends JPanel implements Runnable {
     // ENTITY AND OBJECT 
     public Player player = new Player(this, keyH);
     public SuperObject obj[] = new SuperObject[10];
+    public entity npc[] = new entity[10];
     public AssetSetter aSetter = new AssetSetter(this);
     
     // NETWORK
@@ -68,6 +70,7 @@ public class gamePanel extends JPanel implements Runnable {
     
     public void setUpGame() {
         aSetter.setObject();
+        aSetter.setNPC();
         playMusic(0);
         gameState = playState;
     }
@@ -113,7 +116,14 @@ public class gamePanel extends JPanel implements Runnable {
     
     public void update() {
     	if(gameState == playState) {
+    		//player
     		player.update();
+    		//npc
+    		for(int i = 0 ;i<npc.length;i++) {
+    			if(npc[i]!=null) {
+    				npc[i].update();
+    			}
+    		}
     	}
     	if(gameState == pauseState) {
     		
@@ -142,7 +152,12 @@ public class gamePanel extends JPanel implements Runnable {
                 obj[i].draw(g2, this);
             }
         }
-        
+        // NPC 
+        for(int  i =0 ;i< npc.length;i++) {
+        	if(npc[i] != null) {
+        		npc[i].draw(g2);
+        	}
+        }
         // Draw remote players BEFORE local player
         for (RemotePlayer remotePlayer : remotePlayers.values()) {
             remotePlayer.draw(g2, player.screenX, player.screenY);
