@@ -11,6 +11,8 @@ import main.UI;
 import main.UtiltiyTool;
 import main.gamePanel;
 import main.keyHandler;
+import object.SuperObject;
+import java.util.ArrayList;
 
 public class Player extends entity {
    
@@ -18,6 +20,10 @@ public class Player extends entity {
     public final int screenX;
     public final int screenY;
     public int hasKey = 0;
+    
+    // INVENTORY
+    public ArrayList<SuperObject> inventory = new ArrayList<>();
+    public final int maxInventorySize = 20;
 
     public Player(gamePanel gp, keyHandler keyH) {
     	super(gp);
@@ -157,19 +163,17 @@ public class Player extends entity {
         }
         g2.drawImage(image, screenX, screenY, null);
     }
+    
     public void interactNPC(int index) {
     	if (index != 999) {
     		if(gp.keyH.enterPressed == true ) {
     			gp.gameState = gp.dialogueState;
         		gp.npc[index].speak();
     		}
-    		
-    			 
-        	 
-    		
     	}
     	gp.keyH.enterPressed = false;
     }
+    
     public void pickUpObject(int index) {
         // IF index = 999 IT MEANS WE DIDN'T TOUCH ANY OBJECT
         if (index != 999) {
@@ -178,16 +182,23 @@ public class Player extends entity {
                 case "Key":
                     gp.playSE(1);
                     hasKey++;
+                    // Add to inventory instead of just counting
+                    if (inventory.size() < maxInventorySize) {
+                        inventory.add(gp.obj[index]);
+                        gp.ui.showMessage("You got a key!");
+                    } else {
+                        gp.ui.showMessage("Inventory is full!");
+                    }
                     gp.obj[index] = null;
-                    gp.ui.showMessage("You got a key!");
                     break;
                 case "Door":
                     if (hasKey > 0) {
                         gp.playSE(3);
                         gp.obj[index] = null;
                         hasKey--;
+                        // Remove one key from inventory
+                        removeItemFromInventory("Key");
                         gp.ui.showMessage("You opened the door!");
-
                     }
                     else {
                     	gp.ui.showMessage("You need a key!");
@@ -196,15 +207,28 @@ public class Player extends entity {
                 case "Boots":
                     gp.playSE(2);
                     speed += 1;
+                    if (inventory.size() < maxInventorySize) {
+                        inventory.add(gp.obj[index]);
+                        gp.ui.showMessage("Speed up!");
+                    } else {
+                        gp.ui.showMessage("Inventory is full!");
+                    }
                     gp.obj[index] = null;
-                	gp.ui.showMessage("Speed up!");
-
                     break;
                 case "Chest":
-                	gp.ui.gameFinished =true;
+                	gp.ui.gameFinished = true;
                 	gp.stopMusic();
                 	gp.playSE(4);
                 	break;
+            }
+        }
+    }
+    
+    private void removeItemFromInventory(String itemName) {
+        for (int i = 0; i < inventory.size(); i++) {
+            if (inventory.get(i).name.equals(itemName)) {
+                inventory.remove(i);
+                break;
             }
         }
     }

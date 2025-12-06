@@ -57,6 +57,7 @@ public class gamePanel extends JPanel implements Runnable {
     public final int playState = 1;
     public final int pauseState = 2;
     public final int dialogueState = 3;
+    public final int inventoryState = 4;
     
     public gamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
