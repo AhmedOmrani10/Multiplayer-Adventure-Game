@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
+// MANAGES ALL NETWORK OPERATIONS FOR A PLAYER
 
 public class NetworkManager {
     private int playerId;
@@ -14,7 +15,8 @@ public class NetworkManager {
     private RequestQueue requestQueue;
     private boolean running;
     private GameStateCallback callback;
-    
+ // Constructor: initializes a player in the network
+    // Sets up Lamport clock, request queue, peers list, and callback
     public NetworkManager(int playerId, int port, GameStateCallback callback) {
         this.playerId = playerId;
         this.port = port;
@@ -24,14 +26,15 @@ public class NetworkManager {
         this.requestQueue = new RequestQueue();
         this.running = true;
     }
-    
+    // Starts the server socket to accept incoming connections
     public void start() throws IOException {
         serverSocket = new ServerSocket(port);
         //listens for incoming connections
         new Thread(this::acceptConnections).start();
         System.out.println("Player " + playerId + " started on port " + port);
     }
-    
+    // Connects to a peer by IP and port and sends an introduction message
+
     public void connectToPeer(String host, int peerPort, int peerId) {
         try {
         	//connect to peer 
@@ -54,9 +57,13 @@ public class NetworkManager {
     private void acceptConnections() {
         while (running) {
             try {
+            	// Wait for a new player (peer) to connect. 
+                // This line blocks until a connection is made.
                 Socket socket = serverSocket.accept();
+                // The -1 means we don’t know the peer's ID yet; it will be set later.
                 PeerConnection peer = new PeerConnection(socket, -1, this);
                 peers.add(peer);
+             // Start listening to messages from this peer
                 peer.start();
             } catch (IOException e) {
                 if (running) {
@@ -109,7 +116,7 @@ public class NetworkManager {
         Message msg = new Message(MessageType.RELEASE, playerId, lamportClock.increment(), null);
         broadcastMessage(msg);
     }
-    
+    //7
     public void handleMessage(Message msg, PeerConnection sender) {
     	// Update local Lamport clock based on the timestamp of the received message
         // Ensures all events in the network are ordered consistently
@@ -190,14 +197,14 @@ public class NetworkManager {
         void execute();
     }
 }
-
+//1
 class LamportClock {
     private int time;
     
     public LamportClock() {
         this.time = 0;
     }
-    
+    //synchronized makes sure only one thread executes the method at a time.
     public synchronized int increment() {
         return ++time;
     }
@@ -211,6 +218,12 @@ class LamportClock {
     }
 }
 
+//2
+//////////////////////////////////////////////////////////////////
+//Represents a request by a player to enter the critical section
+//Used in Lamport's distributed mutual exclusion algorithm
+//The Comparable<Request> interface is used so that Request objects can be compared to each other
+////////////////////////////////////////////////////////////////
 class Request implements Comparable<Request> {
     private int processId; // ID of the player/process making the request
     private int timestamp;// Lamport timestamp of the request
@@ -219,7 +232,8 @@ class Request implements Comparable<Request> {
     public Request(int processId, int timestamp) {
         this.processId = processId;
         this.timestamp = timestamp;
-        this.replies = ConcurrentHashMap.newKeySet();
+        //hashmap No duplicates are allowed
+        this.replies = ConcurrentHashMap.newKeySet();// Thread-safe set for replies
     }
     
     public void addReply(int peerId) {
@@ -246,13 +260,11 @@ class Request implements Comparable<Request> {
         return Integer.compare(this.processId, other.processId);
     }
 }
-
+//3
 class RequestQueue {
     // Priority queue to keep requests sorted by timestamp (earliest first)
-
     private PriorityQueue<Request> queue;
     // Map for fast access to requests by process ID
-
     private Map<Integer, Request> requestMap;
     
     public RequestQueue() {
@@ -283,11 +295,16 @@ class RequestQueue {
         return !queue.isEmpty() && queue.peek().equals(request);
     }
 }
-
+//4
 enum MessageType {
-    CONNECT, REQUEST, REPLY, RELEASE, GAME_STATE
+    CONNECT, // A peer is connecting to the network
+    REQUEST,// A peer requests access to the critical section
+    REPLY,// A peer replies to a request granting permission
+    RELEASE, // A peer releases the critical section
+    GAME_STATE // A peer sends updated game state information
 }
-
+//5
+//Implements Serializable so it can be sent over ObjectOutputStream
 class Message implements Serializable {
     private MessageType type;
     private int senderId;
@@ -306,13 +323,15 @@ class Message implements Serializable {
     public int getTimestamp() { return timestamp; }
     public String getData() { return data; }
 }
-
+//6
+//Represents a network connection to a single peer
+//Handles sending and receiving messages over a socket
 class PeerConnection {
-    private Socket socket;
+    private Socket socket;// Socket for communication with the peer
     private int peerId;
     private NetworkManager manager;
-    private ObjectOutputStream out;
-    private ObjectInputStream in;
+    private ObjectOutputStream out;// Stream to send messages to the peer
+    private ObjectInputStream in;// Stream to receive messages from the peer
     private boolean running;
     
     public PeerConnection(Socket socket, int peerId, NetworkManager manager) throws IOException {
@@ -323,7 +342,7 @@ class PeerConnection {
         this.in = new ObjectInputStream(socket.getInputStream());
         this.running = true;
     }
-    
+ // Starts a new thread to continuously listen for incoming messages
     public void start() {
         new Thread(this::receiveMessages).start();
     }
@@ -332,7 +351,7 @@ class PeerConnection {
         while (running) {
             try {
                 Message msg = (Message) in.readObject();
-                manager.handleMessage(msg, this);
+                manager.handleMessage(msg, this);//go to 7
             } catch (IOException | ClassNotFoundException e) {
                 if (running) {
                     System.err.println("Error receiving message: " + e.getMessage());
@@ -345,7 +364,7 @@ class PeerConnection {
     public void sendMessage(Message msg) {
         try {
             out.writeObject(msg);
-            out.flush();
+            out.flush();//forces everything you wrote to be sent immediately instead of waiting.
         } catch (IOException e) {
             System.err.println("Error sending message: " + e.getMessage());
         }

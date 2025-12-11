@@ -62,7 +62,7 @@ public class gamePanel extends JPanel implements Runnable {
     public gamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
-        this.setDoubleBuffered(true);
+        this.setDoubleBuffered(true);// Reduces flickering
         this.addKeyListener(keyH);
         this.setFocusable(true);
     }
@@ -70,7 +70,7 @@ public class gamePanel extends JPanel implements Runnable {
     public void setNetworkManager(NetworkManager manager) {
         this.networkManager = manager;
     }
-    
+ // Sets up the initial game state, objects, and NPCs
     public void setUpGame() {
         aSetter.setObject();
         aSetter.setNPC();
@@ -98,6 +98,7 @@ public class gamePanel extends JPanel implements Runnable {
     
     @Override
     public void run() {
+    	//60 frames per second
         double drawInterval = 1000000000 / fps;
         double nextDrawTime = System.nanoTime() + drawInterval;
         

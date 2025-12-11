@@ -53,7 +53,8 @@ public class entity {
     }
     
     public void setAction() {}
-    
+    // Updates entity's state each frame: movement, collisions, animation
+
     public void update() {
         setAction();
         collisionOn = false;
@@ -89,7 +90,8 @@ public class entity {
             spriteCounter = 0;
         }
     }
-    
+    // Loads and scales an image from resources
+
     public BufferedImage setup(String imagePath) {
         UtiltiyTool uTool = new UtiltiyTool();
         BufferedImage image = null;
@@ -101,13 +103,14 @@ public class entity {
         }
         return image;
     }
-    
+    // Draws the entity on the screen
+
     public void draw(Graphics2D g2) {
         BufferedImage image = null;
         
         int screenX = worldX - gp.player.worldX + gp.player.screenX;
         int screenY = worldY - gp.player.worldY + gp.player.screenY;
-        
+        //If the entity is off-screen, there’s no need to draw it checks => if the entity’s right edge is past the left edge of the screen.
         if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX && 
             worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
             worldY + gp.tileSize > gp.player.worldY - gp.player.screenY && 

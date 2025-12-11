@@ -9,8 +9,13 @@ public class CollisionChecker {
 	public  CollisionChecker(gamePanel gp) {
 		this.gp =gp;
 	}
+	// ===========================================================
+    // Check collision between an entity and tiles in the world
+    // Determines if the entity will collide with a solid tile in the next move
+    // ===========================================================
 	
 	public void chekTile(entity entity) {
+		//calculate the world coordinates of the four sidesof the entity’s solid area.
 		int entityLeftWorldX = entity.worldX +entity.solidArea.x;
 		int entityRightWorldX = entity.worldX +entity.solidArea.x+entity.solidArea.width;
 		int entityTopWorldY =entity.worldY +entity.solidArea.y;
@@ -65,7 +70,10 @@ public class CollisionChecker {
 		}
 
 	}
-
+	// ===========================================================
+    // Check collision between an entity and objects in the world
+    // Returns index of object if player collides, else 999
+    // ===========================================================
 public int checkObject(entity entity,boolean player) {
 	
 	int index = 999;
@@ -85,6 +93,7 @@ case "up" :
 if(gp.obj[i].collision == true) {
 	entity.collisionOn =true;
 }
+// to handle interction like pick up an item
 if(player ==true) {
 	index = i;
 }
@@ -132,7 +141,10 @@ gp.obj[i].solidArea.y = gp.obj[i].solidAreaDefaultY;
 	}
 	return index;
 }
-
+// ===========================================================
+// Check collision between an entity and other entities (NPCs/monsters)
+// Returns index of target collided with, else 999
+// ===========================================================
 //npc or monster
 public int checkEntity(entity entity,entity[] target ) {
 
@@ -198,7 +210,10 @@ target[i].solidArea.y = target[i].solidAreadDefaultY;
 	}
 	return index;	
 }
-
+//===========================================================
+// Check collision between an entity and the player
+// Sets collisionOn = true if entity would hit the player
+// ===========================================================
 public void checkPlayer(entity entity) {
 	// Get entity's solid area position
 	entity.solidArea.x = entity.worldX+entity.solidArea.x;
